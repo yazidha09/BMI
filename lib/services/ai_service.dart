@@ -19,42 +19,63 @@ class AIService {
     try {
       final prompt =
           '''
-You are an expert fitness and nutrition advisor. Provide comprehensive, actionable health advice based on this profile:
+You are an expert fitness and nutrition advisor. Analyze this SPECIFIC person's profile and provide TAILORED advice based on THEIR unique combination of metrics:
 
-📊 METRICS:
-BMI: ${bmi.toStringAsFixed(1)} ($status)
-Height: ${height.toStringAsFixed(1)} cm | Weight: ${weight.toStringAsFixed(1)} kg
-Gender: $gender | Age: $age years
-Activity: $activityLevel
-Body Type: $bodyComposition
+📊 USER PROFILE:
+- BMI: ${bmi.toStringAsFixed(1)} (Status: $status)
+- Height: ${height.toStringAsFixed(1)} cm | Weight: ${weight.toStringAsFixed(1)} kg
+- Gender: $gender | Age: $age years old
+- Current Activity: $activityLevel
+- Body Composition: $bodyComposition
 
-🎯 CRITICAL CONTEXT:
-- "Skinny": Ectomorph body type, struggles to gain weight/muscle, fast metabolism, needs caloric surplus
-- "Balanced": Average metabolism, moderate muscle-to-fat ratio
-- "Mostly Fat": Higher body fat %, needs caloric deficit and fat loss focus
-- "Mostly Muscles": Athletic/muscular, higher BMI is healthy (muscle weighs more than fat)
+🎯 ANALYZE THIS SPECIFIC COMBINATION:
+You MUST consider how their body composition + activity level + BMI status work together:
 
-📋 PROVIDE SPECIFIC ADVICE ON:
+• If "Skinny" + "Underweight/Normal" → Focus on BULKING (caloric surplus, heavy compound lifts)
+• If "Skinny" + "Sedentary" → Focus on building workout habit first, then add calories
+• If "Mostly Muscles" + "Overweight/Obese" BMI → AFFIRM their BMI is misleading due to muscle mass
+• If "Mostly Muscles" + "Bodybuilding" → Advanced training splits and periodization
+• If "Mostly Fat" + "Overweight/Obese" → Fat loss priority with caloric deficit
+• If "Mostly Fat" + "Sedentary" → Start with walking, gradually add resistance training
+• If "Balanced" → Maintain or adjust based on their activity level goals
 
-1. **Health Assessment** (2 sentences)
-   - Is their BMI accurate for their body type?
-   - Overall health status considering muscle/fat ratio
+IMPORTANT: Address their EXACT activity level:
+- Sedentary → How to start exercising safely
+- Fitness → How to optimize their light workouts
+- Bodybuilding → Advanced muscle-building techniques
+- CrossFit → Performance optimization and recovery
+- Running → Strength training to complement cardio
+- Other Sport → Cross-training and injury prevention
 
-2. **Nutrition Plan** (3-4 points)
-   For Skinny: High-calorie foods (3000+ cal), protein (1.6-2g/kg), healthy fats, frequent meals
-   For Fat Loss: Caloric deficit (500 cal below maintenance), high protein, reduce processed foods
-   For Muscle Gain: Protein timing, carbs around workouts, meal frequency
-   For Maintenance: Balanced macros (40% carbs, 30% protein, 30% fats)
+📋 PROVIDE THIS STRUCTURE:
 
-3. **Gym/Training Recommendations** (3-4 points)
-   For Beginners/Skinny: Full-body workouts 3x/week, compound movements (squats, deadlifts, bench press), progressive overload
-   For Bodybuilding: Split routines, hypertrophy rep ranges (8-12), focus on form
-   For CrossFit/Running: Mix strength training, recovery importance
-   For Sedentary: Start with walking 30min daily, gradually increase intensity
+1. **Personalized Health Assessment** (2-3 sentences)
+   - Directly address their BMI (${bmi.toStringAsFixed(1)}) in context of "$bodyComposition" body type
+   - Mention if BMI is accurate or misleading for them
+   - Comment on their "$activityLevel" routine
 
-4. **Key Action Steps** (2-3 specific, measurable goals)
+2. **Custom Nutrition Plan** (4-5 specific points)
+   - EXACT calorie target based on their goal (bulk/cut/maintain)
+   - Protein goal in grams: ${(weight * 1.8).toStringAsFixed(0)}g+ (1.8g/kg minimum)
+   - Meal timing and frequency
+   - Specific foods to eat MORE of
+   - Foods to limit or avoid
 
-Keep response under 250 words. Be motivating, practical, and direct. Use bullet points for clarity.
+3. **Activity-Specific Training** (4-5 points)
+   - Address their CURRENT activity level: "$activityLevel"
+   - If sedentary: how to start
+   - If active: how to optimize or progress
+   - Specific exercises (name them)
+   - Sets, reps, frequency
+
+4. **Action Plan** (3 measurable steps)
+   - Weekly goals
+   - Progress tracking metrics
+   - Timeline expectations
+
+CRITICAL: Your advice MUST reflect their specific selections. Don't give generic advice. If they selected "Bodybuilding", talk about splits and hypertrophy. If they selected "Skinny", emphasize mass gaining. If they selected "CrossFit", mention high-intensity training.
+
+Keep response under 300 words but make every word count. Be direct and motivating.
 ''';
 
       final response = await http.post(
@@ -70,7 +91,7 @@ Keep response under 250 words. Be motivating, practical, and direct. Use bullet 
           'messages': [
             {'role': 'user', 'content': prompt},
           ],
-          'max_tokens': 400,
+          'max_tokens': 450,
           'temperature': 0.7,
         }),
       );
