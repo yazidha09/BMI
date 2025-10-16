@@ -37,6 +37,10 @@ class BmiPage extends StatefulWidget {
 class _BmiPageState extends State<BmiPage> {
   final heightCtrl = TextEditingController();
   final weightCtrl = TextEditingController();
+  final ageCtrl = TextEditingController();
+  String _selectedGender = 'Male';
+  String _selectedActivity = 'Sedentary';
+  String _selectedBodyComp = 'Balanced';
   double? _bmi;
   String _status = '';
   final _dbHelper = DatabaseHelper.instance;
@@ -47,7 +51,9 @@ class _BmiPageState extends State<BmiPage> {
   void _calculateBMI() async {
     final h = double.tryParse(heightCtrl.text);
     final w = double.tryParse(weightCtrl.text);
-    if (h == null || w == null || h <= 0) {
+    final age = int.tryParse(ageCtrl.text);
+
+    if (h == null || w == null || h <= 0 || age == null || age <= 0) {
       setState(() {
         _bmi = null;
         _status = 'Enter valid numbers!';
@@ -80,6 +86,10 @@ class _BmiPageState extends State<BmiPage> {
       bmi: bmi,
       status: s,
       date: DateTime.now(),
+      gender: _selectedGender,
+      age: age,
+      activityLevel: _selectedActivity,
+      bodyComposition: _selectedBodyComp,
     );
     await _dbHelper.insertRecord(record);
 
@@ -89,6 +99,10 @@ class _BmiPageState extends State<BmiPage> {
       status: s,
       height: h,
       weight: w,
+      gender: _selectedGender,
+      age: age,
+      activityLevel: _selectedActivity,
+      bodyComposition: _selectedBodyComp,
     );
 
     setState(() {
@@ -110,6 +124,7 @@ class _BmiPageState extends State<BmiPage> {
   void dispose() {
     heightCtrl.dispose();
     weightCtrl.dispose();
+    ageCtrl.dispose();
     super.dispose();
   }
 
@@ -142,6 +157,73 @@ class _BmiPageState extends State<BmiPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              // Gender Selection
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Gender',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: const Text('Male'),
+                            value: 'Male',
+                            groupValue: _selectedGender,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedGender = value!;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: const Text('Female'),
+                            value: 'Female',
+                            groupValue: _selectedGender,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedGender = value!;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: ageCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Age (years)',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               TextField(
                 controller: heightCtrl,
                 keyboardType: TextInputType.number,
@@ -165,6 +247,167 @@ class _BmiPageState extends State<BmiPage> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Activity Level Selection
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Activity Level',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: _selectedActivity,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.grey[50],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'Sedentary',
+                          child: Text('Sedentary (Little or no exercise)'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Fitness',
+                          child: Text('Fitness (Light exercise 1-3 days/week)'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Bodybuilding',
+                          child: Text('Bodybuilding (Intense training)'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'CrossFit',
+                          child: Text('CrossFit (High intensity workouts)'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Running',
+                          child: Text('Running (Regular cardio)'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Other Sport',
+                          child: Text('Other Sport (Active lifestyle)'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedActivity = value!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Body Composition Selection
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Body Composition',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'How would you describe your body?',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    RadioListTile<String>(
+                      title: const Text(
+                        'Skinny/Ectomorph (Hard to gain weight)',
+                      ),
+                      value: 'Skinny',
+                      groupValue: _selectedBodyComp,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedBodyComp = value!;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: const Text('Balanced'),
+                            value: 'Balanced',
+                            groupValue: _selectedBodyComp,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedBodyComp = value!;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ),
+                        ),
+                        Expanded(
+                          child: RadioListTile<String>(
+                            title: const Text('Mostly Fat'),
+                            value: 'Mostly Fat',
+                            groupValue: _selectedBodyComp,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedBodyComp = value!;
+                              });
+                            },
+                            contentPadding: EdgeInsets.zero,
+                            dense: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                    RadioListTile<String>(
+                      title: const Text('Mostly Muscles (Athletic/Muscular)'),
+                      value: 'Mostly Muscles',
+                      groupValue: _selectedBodyComp,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedBodyComp = value!;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
@@ -439,6 +682,24 @@ class _HistoryPageState extends State<HistoryPage> {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${record.gender}, ${record.age} years  •  ${record.activityLevel}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Body: ${record.bodyComposition}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.black54,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
                           const SizedBox(height: 4),

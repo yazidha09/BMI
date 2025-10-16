@@ -18,13 +18,38 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 3,
+      onCreate: _createDB,
+      onUpgrade: _onUpgrade,
+    );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute(
+        'ALTER TABLE bmi_records ADD COLUMN gender TEXT NOT NULL DEFAULT "Male"',
+      );
+      await db.execute(
+        'ALTER TABLE bmi_records ADD COLUMN age INTEGER NOT NULL DEFAULT 25',
+      );
+    }
+    if (oldVersion < 3) {
+      await db.execute(
+        'ALTER TABLE bmi_records ADD COLUMN activityLevel TEXT NOT NULL DEFAULT "Sedentary"',
+      );
+      await db.execute(
+        'ALTER TABLE bmi_records ADD COLUMN bodyComposition TEXT NOT NULL DEFAULT "Balanced"',
+      );
+    }
   }
 
   Future<void> _createDB(Database db, int version) async {
     const idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
     const realType = 'REAL NOT NULL';
     const textType = 'TEXT NOT NULL';
+    const intType = 'INTEGER NOT NULL';
 
     await db.execute('''
       CREATE TABLE bmi_records (
@@ -33,7 +58,11 @@ class DatabaseHelper {
         weight $realType,
         bmi $realType,
         status $textType,
-        date $textType
+        date $textType,
+        gender $textType,
+        age $intType,
+        activityLevel $textType,
+        bodyComposition $textType
       )
     ''');
   }

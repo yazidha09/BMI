@@ -5,6 +5,10 @@ class BmiRecord {
   final double bmi;
   final String status;
   final DateTime date;
+  final String gender;
+  final int age;
+  final String activityLevel;
+  final String bodyComposition;
 
   BmiRecord({
     this.id,
@@ -13,6 +17,10 @@ class BmiRecord {
     required this.bmi,
     required this.status,
     required this.date,
+    required this.gender,
+    required this.age,
+    required this.activityLevel,
+    required this.bodyComposition,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +31,10 @@ class BmiRecord {
       'bmi': bmi,
       'status': status,
       'date': date.toIso8601String(),
+      'gender': gender,
+      'age': age,
+      'activityLevel': activityLevel,
+      'bodyComposition': bodyComposition,
     };
   }
 
@@ -34,6 +46,10 @@ class BmiRecord {
       bmi: map['bmi'] as double,
       status: map['status'] as String,
       date: DateTime.parse(map['date'] as String),
+      gender: map['gender'] as String,
+      age: map['age'] as int,
+      activityLevel: map['activityLevel'] as String,
+      bodyComposition: map['bodyComposition'] as String,
     );
   }
 }
